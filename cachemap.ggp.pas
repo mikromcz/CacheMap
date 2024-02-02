@@ -59,13 +59,17 @@ begin
     if GC.IsFound then found := formatdatetime('dd"."mm"."yyyy',GC.Found) else found := '';
     
     //workaround pro osklivy nazvy ikonek kesmapy
-    if GC.CacheType = 'Cache In Trash Out Event' then cachetype := 'cito'
-    else if GC.CacheType = 'Earthcache' then cachetype := 'earth'
-    else if GC.CacheType = 'Letterbox Hybrid' then cachetype := 'letter'
-    else cachetype := RegexExtract('^[^\s\-]+',GC.CacheType);
+    if RegexFind('^GC',GC.ID) then
+    begin
+      if GC.CacheType = 'Cache In Trash Out Event' then cachetype := 'cito'
+      else if GC.CacheType = 'Earthcache' then cachetype := 'earth'
+      else if GC.CacheType = 'Letterbox Hybrid' then cachetype := 'letter'
+      else cachetype := RegexExtract('^[^\s\-]+',GC.CacheType);
+    end
+    else cachetype := 'point';
     
-    data := data + GC.Lat + '|'                                                // 50.563533|
-                 + GC.Lon + '|'                                                // 15.91255|
+    data := data + Copy(GC.Lat,0,9) + '|'                                                // 50.563533|
+                 + Copy(GC.Lon,0,9) + '|'                                                // 15.91255|
                  + GC.ID + '|'                                                 // GC29AD8|
                  + AnsiLowercase(cachetype) + '|'                              // traditional|
                  + UtfToAscii(GC.Name) + '|'                                   // Hraci na nabrezi|
@@ -82,8 +86,8 @@ begin
     for n := 0 to GC.Waypoints.Count - 1 do
       if (GC.Waypoints[n].Lat <> '0') and (GC.Waypoints[n].Lon <> '0') then
       begin
-        data := data + GC.Waypoints[n].Lat + '|'                                              // 50.562866|
-                     + GC.Waypoints[n].Lon + '|'                                              // 15.91305|
+        data := data + Copy(GC.Waypoints[n].Lat,0,9) + '|'                                              // 50.562866|
+                     + Copy(GC.Waypoints[n].Lon,0,9) + '|'                                              // 15.91305|
                      + GC.ID + '|'                                                            // GC29AD8|
                      + AnsiLowercase(RegexExtract('^[^\s\-]+',GC.Waypoints[n].WptType)) + '|' // parking|
                      + UtfToAscii(GC.Waypoints[n].FullName) + '|'                             // Parking (Hraci na nabrezi)|
