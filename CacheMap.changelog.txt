@@ -1,0 +1,18 @@
+=== 0.0.0.5 (2011/10/05) ===
+  * pøidána možnost "2"
+  * kompletní zmìna skriptù. teï je celý export v GGE a z GGP se jen volá
+
+=== 0.0.0.4 (2011/06/03) ===
+   * upraveno pro novou mapu kesi GeoGetu((2.5.13)), takze umi u mysterek s rucne pridanym final waypointem nastavit typ "solved"
+   * predavani aktualniho ref. bodu zatim nejde
+   * pridan progressbar
+
+=== 0.0.0.3 (2010/12/08) ===
+   * pøidána podpora pro Waymarky, resp. vše co není keš, má ikonku "point" ((Na popud [[http://www.geocaching.com/profile/default.aspx?u=S474N|S474N]]))
+   * oøíznuty desetinná místa souøadnic na 6 míst. ((Na popud [[http://www.geocaching.com/profile/default.aspx?u=S474N|S474N]]))
+
+=== 0.0.0.2 (2010/12/03) ===
+   * možnost nastavení otevírání v prohlížeèi
+
+=== 0.0.0.1 (2010/11/28) ===
+   * Úvodní verze
