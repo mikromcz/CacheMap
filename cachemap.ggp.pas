@@ -1,12 +1,16 @@
-{ General Plugin Script
+{
+	General Plugin Script
   export dat pro mapu kesi. vyexportuje do souboru data_cachi.txt a otevre mapu v prohlizeci
-  mikrom
+  
+  author: mikrom, http://mikrom.cz
+  webpage: http://geoget.ararat.cz/doku.php/user:skript:cachemap
 }
 
 {$INCLUDE cachemap.config.pas}
 
 var
   data: String;
+  counter: Integer;
 
 {Name of plugin}
 function PluginCaption: string;
@@ -32,6 +36,12 @@ begin
   Result := 'toolbar,list';
 end;
 
+{Called when plugin is started}
+procedure PluginStart;
+begin
+  GeoBusyCaption('Exportuji seznam...');
+end;
+
 {Called for each processed point}
 procedure PluginWork;
 var
@@ -40,7 +50,7 @@ var
 begin
   {Datova struktura vypada takto:  1 - 2 souradnice
   3 GC kod, u waypointu GC kod rodice.
-  4 druh bodu. Anglicky (!), zpravidla prvni slovo z nazvu typu. Viz nazvy ikonek v podadresarich s ikonkami.
+  4 druh bodu. Anglicky (!), zpravidla prvni slovo z nazvu typu. Viz nazvy ikonek v podadresarich s ikonkami. od 2.5.13 jeste "solved" u vylustenych mysterek.
   5 Nazev bodu (u waypointu tzv. plny nazev vcetne nazvu rodice)
   6 autor
   7 datum nalezeni (nikoliv zalozeni...)
@@ -54,20 +64,23 @@ begin
   //keše
   if GC.IsListed then
   begin
-    if GC.IsOwner then owner := '1' else owner := '0';
+    Inc(counter);
+    GeoBusyProgress(counter,GEOGET_MAXCOUNT);
     
+    if GC.IsOwner then owner := '1' else owner := '0';
     if GC.IsFound then found := formatdatetime('dd"."mm"."yyyy',GC.Found) else found := '';
     
     //workaround pro osklivy nazvy ikonek kesmapy
-    if RegexFind('^GC',GC.ID) then
+    if RegexFind('^GC',GC.ID) then // pustime jen kese
     begin
       if GC.CacheType = 'Cache In Trash Out Event' then cachetype := 'cito'
       else if GC.CacheType = 'Earthcache' then cachetype := 'earth'
       else if GC.CacheType = 'Letterbox Hybrid' then cachetype := 'letter'
+      else if (GC.CacheType = 'Unknown Cache') and GC.HaveFinal then cachetype := 'solved' // pro vylusteny mysterky
       else cachetype := RegexExtract('^[^\s\-]+',GC.CacheType);
     end
-    else cachetype := 'point';
-    
+    else cachetype := 'point'; // waymarky a podobnej balast
+
     data := data + Copy(GC.Lat,0,9) + '|'                                                // 50.563533|
                  + Copy(GC.Lon,0,9) + '|'                                                // 15.91255|
                  + GC.ID + '|'                                                 // GC29AD8|
@@ -109,11 +122,15 @@ procedure PluginStop;
 begin
   StringToFile(data,GEOGET_DATADIR+'\map\data_cachi.txt');
   
-  if open_browser = '0' then exit
-  else if open_browser = '1' then RunShell(GEOGET_DATADIR+'\map\mapa.html')
+  if (open_browser = '0') then
+		exit
+  else if (open_browser = '1') then
+		RunShell(GEOGET_DATADIR+'\map\mapa.html') //?lat='+GEOGET_REFX+'&lon='+GEOGET_REFY+'&name='+EncodeUrlElement(GEOGET_REFNAME) // nejde pres RunShell()
   else
   begin
-    if FileExists(open_browser) then RunExecNoWait('"'+open_browser+'" "'+GEOGET_DATADIR+'\map\mapa.html"')
-    else ShowMessage('Chyba: '+open_browser+' neexistuje!');
+    if FileExists(open_browser) then
+			RunExecNoWait('"'+open_browser+'" "'+EncodeUrlElement(GEOGET_DATADIR+'\map\mapa.html?lat='+GEOGET_REFX+'&lon='+GEOGET_REFY+'&name='+GEOGET_REFNAME)+'"')
+    else
+			ShowMessage('Chyba: '+open_browser+' neexistuje!');
   end;
 end;
